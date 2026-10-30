@@ -13,7 +13,7 @@ Tidak ada `npm install`; server memakai modul bawaan Node. Port lain: `PORT=4000
 Agar dashboard bisa dibuka dari HP di jaringan yang sama: `HOST=0.0.0.0 node server.js` (hanya di jaringan tepercaya).
 
 ## Fitur
-- Overlay jam: jam digital, tanggal Masehi dan Hijriah, hitung mundur ke waktu berikutnya, daftar waktu sholat.
+- Overlay satu URL, isinya diatur dari dashboard: jam, tanggal (Masehi dan Hijriah), notifikasi, timer mundur ke waktu berikutnya, dan daftar waktu sholat. Masing-masing bisa dinyalakan atau dimatikan.
 - Notifikasi per waktu (Imsak, Subuh, Terbit, Dzuhur, Ashar, Maghrib, Isya): judul, pesan, emoji, gambar/stiker (PNG, JPG, GIF, WebP), suara, durasi.
 - Ishoma: hitung mundur istirahat otomatis setelah notifikasi.
 - Wilayah: pilih provinsi, kabupaten/kota, kecamatan, sampai desa/kelurahan (38 provinsi, 514 kabupaten/kota, 7.285 kecamatan, 83.612 desa/kelurahan). Koordinat dan zona waktu (WIB/WITA/WIT) terisi otomatis, tetap bisa diedit manual.

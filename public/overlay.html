@@ -9,12 +9,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:transparent;font-fam
 #bar.bottom{bottom:28px;transform-origin:bottom center}#bar.top{top:28px;transform-origin:top center}
 #bar.off{display:none}
 .blk{padding:14px 26px;display:flex;flex-direction:column;justify-content:center}
-.blk+.blk{border-left:2px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+.off{display:none!important}.blk:not(.off)~.blk:not(.off){border-left:2px solid color-mix(in srgb,var(--accent) 45%,transparent)}
 #clock{font:700 64px/1 "Consolas","Courier New",monospace;color:var(--led);text-shadow:0 0 14px color-mix(in srgb,var(--led) 55%,transparent);letter-spacing:2px}
-#date{font-size:17px;margin-top:8px;color:var(--ivory)}#hijri{font-size:15px;color:var(--accent)}
+#clock:not(.off)+#dt{margin-top:8px}#date{font-size:17px;color:var(--ivory)}#hijri{font-size:15px;color:var(--accent)}
 #nextlbl{font-size:18px;color:var(--accent)}
 #cd{font:700 40px/1.1 "Consolas","Courier New",monospace;color:var(--ivory)}
-#list{display:flex;padding:0}#list.off{display:none}
+#list{display:flex;padding:0}
 .t{padding:14px 18px;text-align:center;min-width:96px}.t+.t{border-left:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
 .t b{display:block;font-size:15px;font-weight:600;color:var(--accent)}
 .t span{font:700 28px/1.3 "Consolas","Courier New",monospace}
@@ -33,8 +33,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:transparent;font-fam
 @media (prefers-reduced-motion:reduce){#card{transition:none}}
 </style></head><body>
 <div id="bar" class="bottom">
- <div class="blk"><div id="clock">00:00:00</div><div id="date"></div><div id="hijri"></div></div>
- <div class="blk"><div id="nextlbl">Menuju …</div><div id="cd">00:00:00</div></div>
+ <div class="blk" id="b1"><div id="clock">00:00:00</div><div id="dt"><div id="date"></div><div id="hijri"></div></div></div>
+ <div class="blk" id="b2"><div id="nextlbl">Menuju …</div><div id="cd">00:00:00</div></div>
  <div class="blk" id="list"></div>
 </div>
 <div id="card"><img id="pic" alt=""><div id="emoji"></div><div id="title"></div><div id="msg"></div><div id="at"></div>
@@ -48,8 +48,11 @@ async function loadCfg(){
   cfg=await (await fetch('/api/config')).json();
   const w=cfg.widget,r=document.documentElement.style;
   r.setProperty('--accent',w.accent);r.setProperty('--bg',w.bg);r.setProperty('--s',w.scale);
-  $('bar').className=w.position==='top'?'top':'bottom';if(!w.show)$('bar').classList.add('off');
-  $('list').classList.toggle('off',!w.showList);dayCache.k='';
+  $('bar').className=w.position==='top'?'top':'bottom';
+  const off=(id,v)=>$(id).classList.toggle('off',!v);
+  off('clock',w.showClock);off('dt',w.showDate);off('b1',w.showClock||w.showDate);off('b2',w.showCountdown);off('list',w.showList);
+  if(!(w.showClock||w.showDate||w.showCountdown||w.showList))$('bar').classList.add('off');
+  dayCache.k='';
 }
 function today(now){const k=dayKey(cfg,now)+'|'+cfg.lat+cfg.lng+cfg.fajrAngle+cfg.ishaAngle+cfg.ihtiyath+cfg.imsakMinutes+cfg.madhab;
   if(dayCache.k!==k){dayCache={k,list:computeDay(cfg,now)};
@@ -63,7 +66,7 @@ function tick(){
   if(nx){$('nextlbl').textContent='Menuju '+nx.label;$('cd').textContent=countdown(nx.time-now);
    document.querySelectorAll('.t').forEach(t=>t.classList.toggle('next',t.dataset.k===nx.key));}
   for(const e of list){const id=dk+e.key,diff=now-e.time;
-   if(diff>=0&&diff<5000&&!fired.has(id)){fired.add(id);if(cfg.notif[e.key].enabled)enqueue(e.key,e.time);}}
+   if(diff>=0&&diff<5000&&!fired.has(id)){fired.add(id);if(cfg.widget.showNotif&&cfg.notif[e.key].enabled)enqueue(e.key,e.time);}}
 }
 function enqueue(key,time){queue.push({key,time});if(!busy)next();}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));

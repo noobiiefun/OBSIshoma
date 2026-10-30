@@ -1,0 +1,97 @@
+{
+  "city": "Karangsoka, Kembaran",
+  "lat": -7.4059,
+  "lng": 109.2771,
+  "tz": "Asia/Jakarta",
+  "fajrAngle": 20,
+  "ishaAngle": 18,
+  "ihtiyath": 2,
+  "imsakMinutes": 10,
+  "madhab": "shafi",
+  "widget": {
+    "show": true,
+    "position": "bottom",
+    "scale": 1,
+    "accent": "#d6b25e",
+    "bg": "#0c1a14",
+    "showList": true
+  },
+  "notif": {
+    "imsak": {
+      "enabled": true,
+      "title": "Waktu Imsak",
+      "message": "Waktunya berhenti makan dan minum.",
+      "emoji": "🌙",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 0
+    },
+    "fajr": {
+      "enabled": true,
+      "title": "Waktu Subuh telah tiba",
+      "message": "Untuk wilayah {kota} dan sekitarnya, pukul {waktu}.",
+      "emoji": "🌅",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 0
+    },
+    "sunrise": {
+      "enabled": false,
+      "title": "Matahari Terbit",
+      "message": "Untuk wilayah {kota} dan sekitarnya, pukul {waktu}.",
+      "emoji": "☀️",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 0
+    },
+    "dhuhr": {
+      "enabled": true,
+      "title": "Waktu Dzuhur telah tiba",
+      "message": "Untuk wilayah {kota} dan sekitarnya, pukul {waktu}.",
+      "emoji": "🕛",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 10
+    },
+    "asr": {
+      "enabled": true,
+      "title": "Waktu Ashar telah tiba",
+      "message": "Untuk wilayah {kota} dan sekitarnya, pukul {waktu}.",
+      "emoji": "🌤️",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 10
+    },
+    "maghrib": {
+      "enabled": true,
+      "title": "Waktu Maghrib telah tiba",
+      "message": "Untuk wilayah {kota} dan sekitarnya, pukul {waktu}.",
+      "emoji": "🌇",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 10
+    },
+    "isha": {
+      "enabled": true,
+      "title": "Waktu Isya telah tiba",
+      "message": "Untuk wilayah {kota} dan sekitarnya, pukul {waktu}.",
+      "emoji": "🌃",
+      "image": "",
+      "sound": "",
+      "duration": 15,
+      "ishoma": 10
+    }
+  },
+  "region": {
+    "pv": "33",
+    "kb": "33.02",
+    "kc": "33.02.20",
+    "ds": "33.02.20.2011"
+  }
+}

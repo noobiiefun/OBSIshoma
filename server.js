@@ -21,7 +21,7 @@ function defaults() {
   return {
     city: 'Jakarta', lat: -6.2088, lng: 106.8456, tz: 'Asia/Jakarta',
     fajrAngle: 20, ishaAngle: 18, ihtiyath: 2, imsakMinutes: 10, madhab: 'shafi',
-    widget: { show: true, position: 'bottom', scale: 1, accent: '#d6b25e', bg: '#0c1a14', showList: true },
+    widget: { showClock: true, showDate: true, showNotif: true, showCountdown: true, showList: true, position: 'bottom', scale: 1, accent: '#d6b25e', bg: '#0c1a14' },
     notif
   };
 }
