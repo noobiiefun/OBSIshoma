@@ -1,0 +1,9 @@
+{
+  "name": "obsishoma",
+  "version": "1.0.0",
+  "description": "Jam sholat untuk OBS: overlay ala jam masjid + dashboard pengaturan. Hitung offline.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=16" },
+  "license": "MIT"
+}

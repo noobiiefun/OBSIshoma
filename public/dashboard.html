@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OBSIshoma Dashboard</title>
+<style>
+:root{--bg:#0e1714;--pn:#16231e;--ln:#2a3d35;--tx:#e8efe9;--mu:#93a99d;--ac:#d6b25e;--led:#7dffb2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+header{padding:20px 28px;border-bottom:1px solid var(--ln);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+h1{font-size:22px;margin:0}header p{margin:0;color:var(--mu)}
+main{max-width:1100px;margin:0 auto;padding:24px 28px 80px;display:grid;gap:24px}
+section{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:20px}
+h2{font-size:17px;margin:0 0 14px}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:end}
+label{display:flex;flex-direction:column;gap:4px;color:var(--mu);font-size:13px}
+input,select,textarea,button{font:inherit;color:var(--tx);background:#0b1210;border:1px solid var(--ln);border-radius:6px;padding:7px 10px}
+input[type=color]{padding:2px;height:36px;width:56px}input[type=checkbox]{width:18px;height:18px;accent-color:var(--ac)}
+button{cursor:pointer}button:hover{border-color:var(--ac)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+button.pri{background:var(--ac);color:#10180f;border-color:var(--ac);font-weight:700}
+#now{display:flex;gap:32px;flex-wrap:wrap;align-items:baseline}
+#clk{font:700 54px/1 Consolas,monospace;color:var(--led)}#nx{font-size:18px}#nx b{font:700 26px Consolas,monospace;color:var(--ac)}
+table{border-collapse:collapse;width:100%}td,th{padding:8px 12px;border-bottom:1px solid var(--ln);text-align:left}
+td.tm{font:700 20px Consolas,monospace}tr.nx td{background:#223229}
+.ev{border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:12px;display:grid;gap:10px}
+.ev h3{margin:0;font-size:15px;display:flex;gap:10px;align-items:center}.ev h3 span{flex:1}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:700px){.g2{grid-template-columns:1fr}}
+.url{display:flex;gap:8px;align-items:center;margin:6px 0}.url code{background:#0b1210;padding:6px 10px;border-radius:6px;flex:1;overflow:auto}
+.hint{color:var(--mu);font-size:13px}#toast{position:fixed;right:20px;bottom:20px;background:var(--ac);color:#10180f;padding:10px 16px;border-radius:8px;display:none;font-weight:600}
+.media{display:flex;gap:8px;flex-wrap:wrap}.media span{background:#0b1210;border:1px solid var(--ln);border-radius:6px;padding:3px 4px 3px 10px;font-size:13px}.media button{padding:0 7px;margin-left:4px}
+</style></head><body>
+<header><div><h1>OBSIshoma</h1><p>Jam sholat untuk OBS</p></div>
+ <div id="now"><div id="clk">--:--:--</div><div><div id="dt"></div><div id="nx"></div></div></div></header>
+<main>
+<section><h2>Jadwal hari ini — <span id="cityLbl"></span></h2><table id="tbl"></table></section>
+
+<section><h2>URL untuk OBS</h2>
+ <p class="hint">Di OBS: Sources → + → Browser → tempel URL ini. Lebar 1920, tinggi 1080 (samakan dengan kanvas). Matikan "Shutdown source when not visible" agar jadwal tetap berjalan.</p>
+ <div class="url"><code id="ou"></code><button id="cp">Salin URL</button></div></section>
+
+<section><h2>Wilayah dan metode hitung</h2>
+ <div class="row">
+  <label>Kota<select id="city"></select></label>
+  <label>Nama tampilan<input id="cname"></label>
+  <label>Lintang<input id="lat" type="number" step="0.0001"></label>
+  <label>Bujur<input id="lng" type="number" step="0.0001"></label>
+  <label>Zona waktu<select id="tz"><option>Asia/Jakarta</option><option>Asia/Makassar</option><option>Asia/Jayapura</option></select></label>
+ </div>
+ <div class="row" style="margin-top:12px">
+  <label>Sudut Subuh (°)<input id="fa" type="number" step="0.1" style="width:90px"></label>
+  <label>Sudut Isya (°)<input id="ia" type="number" step="0.1" style="width:90px"></label>
+  <label>Ihtiyath (menit)<input id="ih" type="number" step="1" style="width:90px"></label>
+  <label>Imsak sebelum Subuh (menit)<input id="im" type="number" step="1" style="width:110px"></label>
+  <label>Mazhab Ashar<select id="mz"><option value="shafi">Syafi'i / Jumhur</option><option value="hanafi">Hanafi</option></select></label>
+ </div>
+ <p class="hint">Bawaan mengikuti Kemenag RI: Subuh 20°, Isya 18°, ihtiyath 2 menit, imsak 10 menit. Bandingkan dengan jadwal resmi kota Anda, lalu sesuaikan bila perlu. Perhitungan berjalan offline di komputer ini.</p></section>
+
+<section><h2>Tampilan jam di overlay</h2>
+ <div class="row">
+  <label>Tampilkan jam<input id="wshow" type="checkbox"></label>
+  <label>Daftar waktu sholat<input id="wlist" type="checkbox"></label>
+  <label>Posisi<select id="wpos"><option value="bottom">Bawah</option><option value="top">Atas</option></select></label>
+  <label>Ukuran<input id="wsc" type="number" step="0.05" min="0.4" max="2" style="width:90px"></label>
+  <label>Warna aksen<input id="wac" type="color"></label>
+  <label>Warna latar<input id="wbg" type="color"></label>
+ </div></section>
+
+<section><h2>Notifikasi waktu sholat</h2>
+ <p class="hint">Isi pesan bisa memakai {kota}, {waktu}, dan {nama}. Gambar (termasuk stiker GIF/WebP) menggantikan emoji. Ishoma = hitung mundur istirahat setelah notifikasi (0 untuk mati).</p>
+ <div class="row" style="margin:12px 0"><label>Unggah gambar atau suara<input id="up" type="file" multiple accept=".png,.jpg,.jpeg,.gif,.webp,.mp3,.wav,.ogg,.m4a"></label></div>
+ <div class="media" id="media"></div><div id="evs" style="margin-top:16px"></div></section>
+</main>
+<div style="position:fixed;left:0;right:0;bottom:0;background:#0b1210;border-top:1px solid var(--ln);padding:12px 28px;display:flex;gap:12px;justify-content:flex-end">
+ <span class="hint" style="align-self:center">Perubahan baru dipakai setelah disimpan.</span><button class="pri" id="save">Simpan pengaturan</button></div>
+<div id="toast"></div>
+<script src="/vendor/adhan.umd.min.js"></script><script src="/shared.js"></script>
+<script>
+const $=id=>document.getElementById(id);let cfg,files=[];
+const toast=t=>{const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2200)};
+async function init(){
+  cfg=await (await fetch('/api/config')).json();
+  $('city').innerHTML=CITIES.map((c,i)=>`<option value="${i}">${c.n}</option>`).join('')+'<option value="x">Lainnya (isi manual)</option>';
+  const i=CITIES.findIndex(c=>c.n===cfg.city&&c.lat===cfg.lat);$('city').value=i<0?'x':i;
+  $('cname').value=cfg.city;$('lat').value=cfg.lat;$('lng').value=cfg.lng;$('tz').value=cfg.tz;
+  $('fa').value=cfg.fajrAngle;$('ia').value=cfg.ishaAngle;$('ih').value=cfg.ihtiyath;$('im').value=cfg.imsakMinutes;$('mz').value=cfg.madhab;
+  const w=cfg.widget;$('wshow').checked=w.show;$('wlist').checked=w.showList;$('wpos').value=w.position;$('wsc').value=w.scale;$('wac').value=w.accent;$('wbg').value=w.bg;
+  $('ou').textContent=location.origin+'/overlay.html';
+  await loadMedia();buildEvs();render();setInterval(render,500);
+}
+$('city').onchange=()=>{const c=CITIES[$('city').value];if(!c)return;$('cname').value=c.n;$('lat').value=c.lat;$('lng').value=c.lng;$('tz').value=c.tz;render()};
+$('cp').onclick=()=>{navigator.clipboard.writeText($('ou').textContent).then(()=>toast('URL disalin'))};
+function draft(){ // ambil nilai form saat ini
+  const c=JSON.parse(JSON.stringify(cfg));
+  Object.assign(c,{city:$('cname').value||'Kota',lat:+$('lat').value,lng:+$('lng').value,tz:$('tz').value,fajrAngle:+$('fa').value,ishaAngle:+$('ia').value,ihtiyath:+$('ih').value,imsakMinutes:+$('im').value,madhab:$('mz').value});
+  Object.assign(c.widget,{show:$('wshow').checked,showList:$('wlist').checked,position:$('wpos').value,scale:+$('wsc').value||1,accent:$('wac').value,bg:$('wbg').value});
+  for(const e of EVENTS){const r=document.querySelector(`[data-ev="${e.key}"]`);if(!r)continue;const g=s=>r.querySelector(s);
+   Object.assign(c.notif[e.key],{enabled:g('.en').checked,title:g('.ti').value,message:g('.ms').value,emoji:g('.em').value,image:g('.im').value,sound:g('.so').value,duration:+g('.du').value||15,ishoma:+g('.is').value||0});}
+  return c;}
+function render(){
+  const c=draft(),now=new Date();let list;try{list=computeDay(c,now)}catch{return}
+  $('clk').textContent=fmt(now,c.tz,true);const d=fmtDate(now,c.tz);$('dt').textContent=d.masehi+(d.hijri?' · '+d.hijri:'');
+  const nx=nextEvent(c,now);$('nx').innerHTML=nx?`Menuju ${nx.label}: <b>${countdown(nx.time-now)}</b>`:'';
+  $('cityLbl').textContent=c.city;
+  $('tbl').innerHTML='<tr><th>Waktu</th><th>Jam</th></tr>'+list.map(e=>`<tr class="${nx&&nx.key===e.key?'nx':''}"><td>${e.emoji} ${e.label}</td><td class="tm">${fmt(e.time,c.tz)}</td></tr>`).join('');
+}
+function opts(sel,type){const ok=type==='img'?/\.(png|jpe?g|gif|webp)$/i:/\.(mp3|wav|ogg|m4a)$/i;
+  return '<option value="">— tidak ada —</option>'+files.filter(f=>ok.test(f)).map(f=>`<option ${f===sel?'selected':''}>${f}</option>`).join('')}
+function buildEvs(){
+  $('evs').innerHTML=EVENTS.map(e=>{const n=cfg.notif[e.key];return `<div class="ev" data-ev="${e.key}">
+   <h3><input type="checkbox" class="en" ${n.enabled?'checked':''} aria-label="Aktifkan ${e.label}"><span>${e.emoji} ${e.label}</span><button class="tst">Tes di OBS</button></h3>
+   <div class="g2"><label>Judul<input class="ti" value="${esc(n.title)}"></label><label>Pesan<input class="ms" value="${esc(n.message)}"></label></div>
+   <div class="row"><label>Emoji<input class="em" value="${esc(n.emoji)}" style="width:80px"></label>
+    <label>Gambar / stiker<select class="im">${opts(n.image,'img')}</select></label>
+    <label>Suara<select class="so">${opts(n.sound,'aud')}</select></label>
+    <label>Tampil (detik)<input class="du" type="number" min="3" value="${n.duration}" style="width:90px"></label>
+    <label>Ishoma (menit)<input class="is" type="number" min="0" value="${n.ishoma}" style="width:90px"></label></div></div>`}).join('');
+  document.querySelectorAll('.tst').forEach(b=>b.onclick=async()=>{const k=b.closest('.ev').dataset.ev;
+   await save(true);await fetch('/api/test',{method:'POST',body:JSON.stringify({key:k})});toast('Tes dikirim ke OBS');});
+}
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+async function loadMedia(){files=await (await fetch('/api/media')).json();
+  $('media').innerHTML=files.length?files.map(f=>`<span>${esc(f)}<button data-f="${esc(f)}" title="Hapus">×</button></span>`).join(''):'<span class="hint" style="border:0">Belum ada file.</span>';
+  $('media').querySelectorAll('button').forEach(b=>b.onclick=async()=>{if(!confirm('Hapus '+b.dataset.f+'?'))return;
+   const c=draft();await fetch('/api/media?name='+encodeURIComponent(b.dataset.f),{method:'DELETE'});cfg=c;await loadMedia();buildEvs();});}
+$('up').onchange=async e=>{const c=draft();
+  for(const f of e.target.files){const r=await fetch('/api/media?name='+encodeURIComponent(f.name),{method:'POST',body:f});if(!r.ok)toast('Gagal: '+f.name)}
+  e.target.value='';cfg=c;await loadMedia();buildEvs();toast('Unggahan selesai');};
+async function save(quiet){cfg=draft();const r=await fetch('/api/config',{method:'POST',body:JSON.stringify(cfg)});if(!quiet)toast(r.ok?'Pengaturan disimpan':'Gagal menyimpan');}
+$('save').onclick=()=>save();
+document.addEventListener('input',render);init();
+</script></body></html>
