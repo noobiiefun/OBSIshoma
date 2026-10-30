@@ -16,7 +16,7 @@ Agar dashboard bisa dibuka dari HP di jaringan yang sama: `HOST=0.0.0.0 node ser
 - Overlay jam: jam digital, tanggal Masehi dan Hijriah, hitung mundur ke waktu berikutnya, daftar waktu sholat.
 - Notifikasi per waktu (Imsak, Subuh, Terbit, Dzuhur, Ashar, Maghrib, Isya): judul, pesan, emoji, gambar/stiker (PNG, JPG, GIF, WebP), suara, durasi.
 - Ishoma: hitung mundur istirahat otomatis setelah notifikasi.
-- Wilayah: pilih kota Indonesia atau isi koordinat manual, zona waktu WIB/WITA/WIT.
+- Wilayah: pilih provinsi, kabupaten/kota, kecamatan, sampai desa/kelurahan (38 provinsi, 514 kabupaten/kota, 7.285 kecamatan, 83.612 desa/kelurahan). Koordinat dan zona waktu (WIB/WITA/WIT) terisi otomatis, tetap bisa diedit manual.
 - Offline: waktu dihitung dengan adhan-js (terlampir di `public/vendor`) dari jam komputer, tanpa internet.
 - Tombol "Tes di OBS" per waktu untuk mencoba tampilan.
 
@@ -24,6 +24,9 @@ Agar dashboard bisa dibuka dari HP di jaringan yang sama: `HOST=0.0.0.0 node ser
 Bawaan mengikuti Kemenag RI: Subuh 20°, Isya 18°, ihtiyath +2 menit, imsak 10 menit sebelum Subuh.
 Selisih satu-dua menit dengan jadwal resmi bisa terjadi; cocokkan dengan jadwal Kemenag/masjid setempat dan sesuaikan ihtiyath bila perlu.
 Jam komputer harus akurat (aktifkan sinkronisasi waktu otomatis).
+
+## Data wilayah
+Berasal dari cahyadsn/wilayah_boundaries (MIT; kode Kepmendagri No 300.2.2-2430/2025, koordinat = titik tengah batas wilayah). Disimpan lokal di `public/data` (indeks + satu berkas per kabupaten/kota), jadi tetap offline. Untuk membangun ulang: `node tools/build-wilayah.js <folder wilayah_boundaries/db> public/data`.
 
 ## Struktur
 - `server.js` server lokal (config, unggahan, event ke overlay)

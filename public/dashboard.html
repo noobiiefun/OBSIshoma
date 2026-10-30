@@ -36,7 +36,12 @@ td.tm{font:700 20px Consolas,monospace}tr.nx td{background:#223229}
 
 <section><h2>Wilayah dan metode hitung</h2>
  <div class="row">
-  <label>Kota<select id="city"></select></label>
+  <label>Provinsi<select id="pv"></select></label>
+  <label>Kabupaten / Kota<select id="kb" disabled></select></label>
+  <label>Kecamatan<select id="kc" disabled></select></label>
+  <label>Desa / Kelurahan<select id="ds" disabled></select></label>
+ </div>
+ <div class="row" style="margin-top:12px">
   <label>Nama tampilan<input id="cname"></label>
   <label>Lintang<input id="lat" type="number" step="0.0001"></label>
   <label>Bujur<input id="lng" type="number" step="0.0001"></label>
@@ -49,7 +54,7 @@ td.tm{font:700 20px Consolas,monospace}tr.nx td{background:#223229}
   <label>Imsak sebelum Subuh (menit)<input id="im" type="number" step="1" style="width:110px"></label>
   <label>Mazhab Ashar<select id="mz"><option value="shafi">Syafi'i / Jumhur</option><option value="hanafi">Hanafi</option></select></label>
  </div>
- <p class="hint">Bawaan mengikuti Kemenag RI: Subuh 20°, Isya 18°, ihtiyath 2 menit, imsak 10 menit. Bandingkan dengan jadwal resmi kota Anda, lalu sesuaikan bila perlu. Perhitungan berjalan offline di komputer ini.</p></section>
+ <p class="hint">Pilih wilayah sampai desa/kelurahan agar koordinatnya paling dekat; zona waktu mengikuti provinsi (bisa diubah manual). Koordinat adalah titik tengah wilayah, dan lintang/bujur masih bisa diedit. Bawaan mengikuti Kemenag RI: Subuh 20°, Isya 18°, ihtiyath 2 menit, imsak 10 menit. Bandingkan dengan jadwal resmi kota Anda, lalu sesuaikan bila perlu. Perhitungan berjalan offline di komputer ini.</p></section>
 
 <section><h2>Tampilan jam di overlay</h2>
  <div class="row">
@@ -75,18 +80,40 @@ const $=id=>document.getElementById(id);let cfg,files=[];
 const toast=t=>{const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2200)};
 async function init(){
   cfg=await (await fetch('/api/config')).json();
-  $('city').innerHTML=CITIES.map((c,i)=>`<option value="${i}">${c.n}</option>`).join('')+'<option value="x">Lainnya (isi manual)</option>';
-  const i=CITIES.findIndex(c=>c.n===cfg.city&&c.lat===cfg.lat);$('city').value=i<0?'x':i;
+  await initRegion();
   $('cname').value=cfg.city;$('lat').value=cfg.lat;$('lng').value=cfg.lng;$('tz').value=cfg.tz;
   $('fa').value=cfg.fajrAngle;$('ia').value=cfg.ishaAngle;$('ih').value=cfg.ihtiyath;$('im').value=cfg.imsakMinutes;$('mz').value=cfg.madhab;
   const w=cfg.widget;$('wshow').checked=w.show;$('wlist').checked=w.showList;$('wpos').value=w.position;$('wsc').value=w.scale;$('wac').value=w.accent;$('wbg').value=w.bg;
   $('ou').textContent=location.origin+'/overlay.html';
   await loadMedia();buildEvs();render();setInterval(render,500);
 }
-$('city').onchange=()=>{const c=CITIES[$('city').value];if(!c)return;$('cname').value=c.n;$('lat').value=c.lat;$('lng').value=c.lng;$('tz').value=c.tz;render()};
+// ---- Wilayah bertingkat: provinsi > kabupaten/kota > kecamatan > desa (data lokal, offline) ----
+let WIL=[],KECS=[];
+const fill=(id,items,sel,ph)=>{const e=$(id);e.innerHTML='<option value="">'+ph+'</option>'+items.map(x=>`<option value="${x[0]}">${esc(x[1])}</option>`).join('');
+  e.disabled=!items.length;if(sel)e.value=sel};
+const prov=()=>WIL.find(p=>p.k===$('pv').value);
+const setLoc=(lat,lng,name)=>{$('lat').value=lat;$('lng').value=lng;$('cname').value=name;render()};
+async function loadKab(code){KECS=await (await fetch('/data/kab/'+code+'.json')).json();}
+async function initRegion(){
+  WIL=await (await fetch('/data/index.json')).json();const r=cfg.region||{};
+  fill('pv',WIL.map(p=>[p.k,p.n]),r.pv,'— pilih provinsi —');
+  fill('kb',[],'','— pilih kabupaten / kota —');fill('kc',[],'','— pilih kecamatan —');fill('ds',[],'','— pilih desa / kelurahan —');
+  const p=prov();if(!p)return;fill('kb',p.kab.map(k=>[k[0],k[1]]),r.kb,'— pilih kabupaten / kota —');
+  if(!r.kb)return;await loadKab(r.kb);fill('kc',KECS.map(k=>[k[0],k[1]]),r.kc,'— pilih kecamatan —');
+  const c=KECS.find(k=>k[0]===r.kc);if(c)fill('ds',c[4].map(d=>[d[0],d[1]]),r.ds,'— pilih desa / kelurahan —');
+}
+$('pv').onchange=()=>{const p=prov();fill('kb',p?p.kab.map(k=>[k[0],k[1]]):[],'','— pilih kabupaten / kota —');
+  fill('kc',[],'','— pilih kecamatan —');fill('ds',[],'','— pilih desa / kelurahan —');if(p)$('tz').value=p.tz;render()};
+$('kb').onchange=async()=>{fill('kc',[],'','— pilih kecamatan —');fill('ds',[],'','— pilih desa / kelurahan —');
+  const k=prov()?.kab.find(x=>x[0]===$('kb').value);if(!k)return;await loadKab(k[0]);
+  fill('kc',KECS.map(x=>[x[0],x[1]]),'','— pilih kecamatan —');setLoc(k[2],k[3],k[1])};
+$('kc').onchange=()=>{fill('ds',[],'','— pilih desa / kelurahan —');const c=KECS.find(x=>x[0]===$('kc').value);if(!c)return;
+  fill('ds',c[4].map(d=>[d[0],d[1]]),'','— pilih desa / kelurahan —');setLoc(c[2],c[3],'Kec. '+c[1])};
+$('ds').onchange=()=>{const c=KECS.find(x=>x[0]===$('kc').value),d=c&&c[4].find(x=>x[0]===$('ds').value);if(d)setLoc(d[2],d[3],d[1]+', '+c[1])};
 $('cp').onclick=()=>{navigator.clipboard.writeText($('ou').textContent).then(()=>toast('URL disalin'))};
 function draft(){ // ambil nilai form saat ini
   const c=JSON.parse(JSON.stringify(cfg));
+  c.region={pv:$('pv').value,kb:$('kb').value,kc:$('kc').value,ds:$('ds').value};
   Object.assign(c,{city:$('cname').value||'Kota',lat:+$('lat').value,lng:+$('lng').value,tz:$('tz').value,fajrAngle:+$('fa').value,ishaAngle:+$('ia').value,ihtiyath:+$('ih').value,imsakMinutes:+$('im').value,madhab:$('mz').value});
   Object.assign(c.widget,{show:$('wshow').checked,showList:$('wlist').checked,position:$('wpos').value,scale:+$('wsc').value||1,accent:$('wac').value,bg:$('wbg').value});
   for(const e of EVENTS){const r=document.querySelector(`[data-ev="${e.key}"]`);if(!r)continue;const g=s=>r.querySelector(s);

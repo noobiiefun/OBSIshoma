@@ -8,22 +8,6 @@ const EVENTS = [
   { key: 'maghrib', label: 'Maghrib', emoji: '🌇', count: true },
   { key: 'isha', label: 'Isya', emoji: '🌃', count: true }
 ];
-const CITIES = [
-  ['Jakarta', -6.2088, 106.8456, 'Asia/Jakarta'], ['Bandung', -6.9175, 107.6191, 'Asia/Jakarta'],
-  ['Bekasi', -6.2383, 106.9756, 'Asia/Jakarta'], ['Tangerang', -6.1783, 106.6319, 'Asia/Jakarta'],
-  ['Bogor', -6.5971, 106.806, 'Asia/Jakarta'], ['Semarang', -6.9667, 110.4167, 'Asia/Jakarta'],
-  ['Yogyakarta', -7.7956, 110.3695, 'Asia/Jakarta'], ['Surabaya', -7.2575, 112.7521, 'Asia/Jakarta'],
-  ['Malang', -7.9666, 112.6326, 'Asia/Jakarta'], ['Medan', 3.5952, 98.6722, 'Asia/Jakarta'],
-  ['Banda Aceh', 5.5483, 95.3238, 'Asia/Jakarta'], ['Padang', -0.9471, 100.4172, 'Asia/Jakarta'],
-  ['Pekanbaru', 0.5071, 101.4478, 'Asia/Jakarta'], ['Palembang', -2.9761, 104.7754, 'Asia/Jakarta'],
-  ['Bandar Lampung', -5.45, 105.2667, 'Asia/Jakarta'], ['Pontianak', -0.0263, 109.3425, 'Asia/Jakarta'],
-  ['Banjarmasin', -3.3194, 114.5908, 'Asia/Makassar'], ['Balikpapan', -1.2379, 116.8529, 'Asia/Makassar'],
-  ['Samarinda', -0.5022, 117.1536, 'Asia/Makassar'], ['Denpasar', -8.6705, 115.2126, 'Asia/Makassar'],
-  ['Mataram', -8.5833, 116.1167, 'Asia/Makassar'], ['Makassar', -5.1477, 119.4327, 'Asia/Makassar'],
-  ['Manado', 1.4748, 124.8421, 'Asia/Makassar'], ['Kendari', -3.9985, 122.5129, 'Asia/Makassar'],
-  ['Palu', -0.9, 119.8707, 'Asia/Makassar'], ['Ambon', -3.6954, 128.1814, 'Asia/Jayapura'],
-  ['Jayapura', -2.5337, 140.7181, 'Asia/Jayapura']
-].map(c => ({ n: c[0], lat: c[1], lng: c[2], tz: c[3] }));
 
 const pad = n => String(n).padStart(2, '0');
 function ymd(date, tz) {
